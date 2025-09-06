@@ -2,7 +2,6 @@ import os
 import logging
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from werkzeug.middleware.proxy_fix import ProxyFix
-import gzip
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -16,11 +15,7 @@ from chat import get_ai_response, format_conversation
 
 @app.after_request
 def after_request(response):
-    """Add compression and caching headers for Opera Mini optimization"""
-    # Enable gzip compression
-    if response.content_type.startswith('text/'):
-        response.headers['Content-Encoding'] = 'gzip'
-    
+    """Add caching headers for Opera Mini optimization"""
     # Cache static assets
     if request.endpoint == 'static':
         response.headers['Cache-Control'] = 'public, max-age=86400'
@@ -98,4 +93,5 @@ def server_error(error):
     return render_template('index.html'), 500
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)
